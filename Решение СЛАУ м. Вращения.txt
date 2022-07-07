@@ -1,0 +1,178 @@
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <iomanip>
+#include <math.h>
+//1) не оставляй пустую строку в файле и пробел, тогда все работает
+std::vector<std::vector <double>>TakeMatrix(std::ofstream & filename)
+{
+	std::ifstream in("input.txt");
+
+	if (in.is_open())
+	  {
+	    //Если открытие файла прошло успешно
+
+	    //Вначале посчитаем сколько чисел в файле
+	    int count = 0;// число чисел в файле
+	    int temp;//Временная переменная
+
+	    while (!in.eof())// пробегаем пока не встретим конец файла eof
+	    {
+	      in >> temp;//в пустоту считываем из файла числа
+	      count++;// увеличиваем счетчик числа чисел
+	    }
+
+	    //Число чисел посчитано, теперь нам нужно понять сколько
+	    //чисел в одной строке
+	    //Для этого посчитаем число пробелов до знака перевода на новую строку
+
+	    //Вначале переведем каретку в потоке в начало файла
+	    in.seekg(0, std::ios::beg);
+	    in.clear();
+
+	    //Число пробелов в первой строчке вначале равно 0
+	    int count_space = 0;
+	    char symbol;
+	    while (!in.eof())//на всякий случай цикл ограничиваем концом файла
+	    {
+	      //теперь нам нужно считывать не числа, а посимвольно считывать данные
+	      in.get(symbol);//считали текущий символ
+	      if (symbol == ' ') count_space++;//Если это пробел, то число пробелов увеличиваем
+	      if (symbol == '\n') break;//Если дошли до конца строки, то выходим из цикла
+	    }
+	    //cout << count_space << endl;
+
+	    //Опять переходим в потоке в начало файла
+	    in.seekg(0, std::ios::beg);
+	    in.clear();
+
+	    //Теперь мы знаем сколько чисел в файле и сколько пробелов в первой строке.
+	    //Теперь можем считать матрицу.
+
+	    int n = count / (count_space + 1);//число строк
+	    int m = count_space + 1;//число столбцов на единицу больше числа пробелов
+	    //std::vector<std::vector<double>> x;
+	    std::vector<std::vector <double>> A(n, std::vector <double>(m));
+	    //Считаем матрицу из файла
+	    for (int i = 0; i < n; i++)
+	      for (int j = 0; j < m; j++)
+	        in >> A[i][j];
+/*
+	    //Выведем матрицу
+	    for (int i = 0; i < n; i++)
+	    {
+	      for (int j = 0; j < m; j++)
+	    	  std::cout << x[i][j] << "\t";
+	      std::cout << "\n" ;
+	    }
+
+	    for (int i = 0; i<n; i++) delete[] x[i];
+	    delete[] x;
+*/
+	    in.close();//под конец закроем файла
+	    return A;
+	  }
+	  else
+	  {
+	    //Если открытие файла прошло не успешно
+		  std::cout << "Файл не найден.";
+
+	  }
+	std::vector<std::vector <double>> Zero(0);
+	return Zero;
+}
+void PrintMaxtrix(std::vector<std::vector <double>>& A)
+{
+
+	for (size_t i = 0; i < A.size(); ++i){
+		std::cout << std::endl;
+	        for (size_t j = 0; j < A[i].size(); ++j)
+	        {
+	        	std::cout <<std::fixed <<std::setw(10) << A[i][j] ;
+	        }
+}
+	std::cout << std::endl;
+	//std::cout << A.size() << " "  << A[0].size() << " " << " Размеры";
+}
+void Err(std::vector<std::vector <double>>& A)
+{
+	double err=0;
+	for (size_t i = 0; i < A.size(); ++i){
+		std::cout << std::endl;
+	        for (size_t j = 0; j < A[i].size(); ++j)
+	        {
+	        	if(abs(A[i][j])<0.000001) err+=A[i][j];
+	        }
+}
+	std::cout << "Ошибка метода вращений= " << std::scientific<< err << std::endl;
+}
+std::vector<double> gauss (std::vector <std::vector<double>>  a) {
+
+    double s;
+    int i,j,N;
+    N=a.size();
+    std::vector<double> x(N);
+    //std::cout << n << " "  << m << " ";
+    for(i=N-1; i>=0; i--)
+    	{
+    		s=0;
+    		for(j=i+1; j<N; j++)
+    		s += a[i][j]*x[j];
+    		x[i]=(a[i][N]-s)/a[i][i];
+    	}
+    return x;
+}
+
+
+
+
+
+	int main()
+	{
+
+		std::vector<double>   ans;
+	    std::vector<std::vector<double>> A;
+	    std::vector<std::vector<double>> B;
+		std::ofstream file("output.txt");
+
+	    A=TakeMatrix(file);
+
+std::cout << "Исходная матрица" << std::endl;
+	   // PrintMaxtrix(A);
+
+B=A;
+for (size_t k = 0; k <= A.size()-1; ++k){
+	    for (size_t i = k; i < A.size()-1; ++i){
+	    	//B=A;
+	    	        for (size_t j = 0; j < A[i].size(); ++j)
+	    	        { // Первая строчка умножается на C и складывается со следющей, умноженной на S
+
+	    	        	B[k][j]=A[k][j]*(A[k][k]/(std::sqrt(A[k][k]*A[k][k]+A[i+1][k]*A[i+1][k])))+A[i+1][j]*(A[i+1][k]/(std::sqrt(A[k][k]*A[k][k]+A[i+1][k]*A[i+1][k]))) ;
+	    	        	// Первая строчка умножается на - S и складывается со следующей умноженной на С
+	    	        	B[i+1][j]=A[k][j]*(-(A[i+1][k]/(std::sqrt(A[k][k]*A[k][k]+A[i+1][k]*A[i+1][k]))))+A[i+1][j]*(A[k][k]/(std::sqrt(A[k][k]*A[k][k]+A[i+1][k]*A[i+1][k]))) ;
+
+
+	    	        }
+	    	        A=B;
+	    }
+}
+
+
+
+std::cout << "Треугольная матрица полученная методом вращения " << std::endl;
+PrintMaxtrix(B);
+std::cout <<B[1][1];
+Err(B);
+ans=gauss(B);
+std::cout << "Ответ, полученный обратным ходом метода Гаусса" << std::endl;
+//std::ofstream fout("/Users/shiro/Desktop/Решение.txt");
+for (size_t k = 0; k <= ans.size()-1; ++k){
+	//fout <<std::fixed<< ans[k] << " " << std::endl;
+	std::cout << ans[k] << " " << std::endl;
+}
+
+file.close();
+
+	    return 0;
+	}
